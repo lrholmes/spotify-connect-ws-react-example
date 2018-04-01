@@ -1,0 +1,88 @@
+.App {
+  display: grid;
+  height: 100vh;
+  grid-template-columns: minmax(0, 300px) minMax(300px, 1fr);
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+aside {
+  background: #222;
+  font-family: monospace;
+  font-size: 16px;
+  color: ghostwhite;
+}
+
+.Log {
+  list-style: none;
+}
+.Log li {
+  margin-bottom: 8px;
+}
+
+.Container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+p {
+  max-width: 400px;
+}
+
+.Artwork {
+  max-width: 400px;
+  border-radius: 6px;
+  box-shadow: 0px 3px 12px rgb(184, 184, 184);
+  margin-bottom: 16px;
+}
+
+.Title {
+  margin: 0;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.Controls {
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.Controls > * {
+  margin: 0 1rem;
+  cursor: pointer;
+}
+
+.ProgressBar {
+  position: relative;
+  width: 75%;
+  height: 10px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: gainsboro;
+}
+
+.Progress {
+  position: absolute;
+  border-radius: 4px;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: burlywood;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
