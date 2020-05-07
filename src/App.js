@@ -1,111 +1,114 @@
-import React, { Component } from 'react'
-import './App.css'
-import { checkToken, getToken, login } from './auth'
-import openSocket from 'socket.io-client'
-import Icon from '@fortawesome/react-fontawesome'
+import React, { Component } from 'react';
+import './App.css';
+import { checkToken, getToken, login } from './auth';
+import openSocket from 'socket.io-client';
 import {
   faStepBackward,
   faStepForward,
   faPlay,
-  faPause
-} from '@fortawesome/fontawesome-free-solid'
+  faPause,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+
+const SPOTIFY_CONNECT_SOCKET_URL =
+  'https://spotify-connect-ws.herokuapp.com/connect';
 
 class App extends Component {
   state = {
     authorised: checkToken(),
-    eventLog: []
-  }
+    eventLog: [],
+  };
   componentDidMount() {
     if (checkToken()) {
-      this.setupConnect()
+      this.setupConnect();
     }
   }
   authorise = () => {
     login()
       .then(() => this.setState({ authorised: true }))
-      .then(this.setupConnect)
-  }
+      .then(this.setupConnect);
+  };
   setProgress = (progress, timestamp) => {
-    const trackLength = this.state.activeTrack.duration_ms
+    const trackLength = this.state.activeTrack.duration_ms;
     this.setState({
       progress: progress,
-      progressPercent: progress / trackLength * 100
-    })
-  }
-  setPlaybackState = isPlaying => {
+      progressPercent: (progress / trackLength) * 100,
+    });
+  };
+  setPlaybackState = (isPlaying) => {
     this.setState({
-      isPlaying
-    })
-  }
-  setDevice = device => {
+      isPlaying,
+    });
+  };
+  setDevice = (device) => {
     this.setState({
-      device
-    })
-  }
-  setVolume = volume => {
+      device,
+    });
+  };
+  setVolume = (volume) => {
     this.setState({
-      volume
-    })
-  }
-  setTrack = activeTrack => {
+      volume,
+    });
+  };
+  setTrack = (activeTrack) => {
     this.setState({
-      activeTrack
-    })
-  }
+      activeTrack,
+    });
+  };
   emit = (event, value) => {
-    this.io.emit(event, value)
+    this.io.emit(event, value);
 
     // optimistic updates
     switch (event) {
       case 'play':
-        this.setPlaybackState(true)
-        break
+        this.setPlaybackState(true);
+        break;
       case 'pause':
-        this.setPlaybackState(false)
-        break
+        this.setPlaybackState(false);
+        break;
       default:
-        break
+        break;
     }
-  }
-  onError = error => {
-    this.setState({ error: error.message || error })
-  }
+  };
+  onError = (error) => {
+    this.setState({ error: error.message || error });
+  };
   setupConnect = () => {
-    const io = openSocket(process.env.REACT_APP_CONNECT_URL)
+    const io = openSocket(SPOTIFY_CONNECT_SOCKET_URL);
     const wrappedHandler = (event, handler) => {
-      io.on(event, data => {
-        console.info(event, data)
+      io.on(event, (data) => {
+        console.info(event, data);
         this.setState({
-          eventLog: [...this.state.eventLog, { event, data }]
-        })
-        handler(data)
-      })
-    }
-    io.emit('initiate', { accessToken: getToken() })
-    wrappedHandler('initial_state', state => {
-      this.setVolume(state.device.volume_percent)
-      this.setDevice(state.device)
-      this.setPlaybackState(state.is_playing)
-      this.setTrack(state.item)
-      this.setProgress(state.progress_ms)
-      this.setState({ playerReady: true })
+          eventLog: [...this.state.eventLog, { event, data }],
+        });
+        handler(data);
+      });
+    };
+    io.emit('initiate', { accessToken: getToken() });
+    wrappedHandler('initial_state', (state) => {
+      this.setVolume(state.device.volume_percent);
+      this.setDevice(state.device);
+      this.setPlaybackState(state.is_playing);
+      this.setTrack(state.item);
+      this.setProgress(state.progress_ms);
+      this.setState({ playerReady: true });
       this.progressTimer = window.setInterval(() => {
         if (this.state.isPlaying) {
-          this.setProgress(this.state.progress + 1000)
+          this.setProgress(this.state.progress + 1000);
         }
-      }, 1000)
-    })
-    wrappedHandler('track_change', this.setTrack)
-    wrappedHandler('seek', this.setProgress)
-    wrappedHandler('playback_started', () => this.setPlaybackState(true))
-    wrappedHandler('playback_paused', () => this.setPlaybackState(false))
-    wrappedHandler('device_change', this.setDevice)
-    wrappedHandler('volume_change', this.setVolume)
-    wrappedHandler('track_end', () => {})
-    wrappedHandler('connect_error', this.onError)
+      }, 1000);
+    });
+    wrappedHandler('track_change', this.setTrack);
+    wrappedHandler('seek', this.setProgress);
+    wrappedHandler('playback_started', () => this.setPlaybackState(true));
+    wrappedHandler('playback_paused', () => this.setPlaybackState(false));
+    wrappedHandler('device_change', this.setDevice);
+    wrappedHandler('volume_change', this.setVolume);
+    wrappedHandler('track_end', () => {});
+    wrappedHandler('connect_error', this.onError);
 
-    this.io = io
-  }
+    this.io = io;
+  };
   render() {
     const {
       eventLog,
@@ -113,8 +116,8 @@ class App extends Component {
       activeTrack,
       authorised,
       playerReady,
-      isPlaying
-    } = this.state
+      isPlaying,
+    } = this.state;
     return (
       <div className="App">
         <aside>
@@ -191,8 +194,8 @@ class App extends Component {
           )}
         </main>
       </div>
-    )
+    );
   }
 }
 
-export default App
+export default App;
